@@ -1,15 +1,16 @@
 package dev.marawanxmamdouh.devbytes.network
 
-import dev.marawanxmamdouh.devbytes.domain.Video
 import com.squareup.moshi.JsonClass
+import dev.marawanxmamdouh.devbytes.database.DatabaseVideo
+import dev.marawanxmamdouh.devbytes.domain.Video
 
 /**
  * DataTransferObjects go in this file. These are responsible for parsing responses from the server
  * or formatting objects to send to the server. You should convert these to domain objects before
  * using them.
- */
-
-/**
+ *
+ * **
+ *
  * VideoHolder holds a list of Videos.
  *
  * This is to parse first level of our network result which looks like
@@ -26,12 +27,13 @@ data class NetworkVideoContainer(val videos: List<NetworkVideo>)
  */
 @JsonClass(generateAdapter = true)
 data class NetworkVideo(
-        val title: String,
-        val description: String,
-        val url: String,
-        val updated: String,
-        val thumbnail: String,
-        val closedCaptions: String?)
+    val title: String,
+    val description: String,
+    val url: String,
+    val updated: String,
+    val thumbnail: String,
+    val closedCaptions: String?
+)
 
 /**
  * Convert Network results to database objects
@@ -39,10 +41,26 @@ data class NetworkVideo(
 fun NetworkVideoContainer.asDomainModel(): List<Video> {
     return videos.map {
         Video(
-                title = it.title,
-                description = it.description,
-                url = it.url,
-                updated = it.updated,
-                thumbnail = it.thumbnail)
+            title = it.title,
+            description = it.description,
+            url = it.url,
+            updated = it.updated,
+            thumbnail = it.thumbnail
+        )
     }
+}
+
+/**
+ * Converts from [NetworkVideo] objects to [DatabaseVideo] objects
+ */
+fun NetworkVideoContainer.asDatabaseModel(): Array<DatabaseVideo> {
+    return videos.map {
+        DatabaseVideo(
+            title = it.title,
+            description = it.description,
+            url = it.url,
+            updated = it.updated,
+            thumbnail = it.thumbnail
+        )
+    }.toTypedArray()
 }
