@@ -1,10 +1,8 @@
 package dev.marawanxmamdouh.devbytes.viewmodels
 
 import android.app.Application
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
+import com.google.android.material.snackbar.Snackbar
 import dev.marawanxmamdouh.devbytes.database.getDatabase
 import dev.marawanxmamdouh.devbytes.repository.VideosRepository
 import kotlinx.coroutines.launch
@@ -19,14 +17,28 @@ import kotlinx.coroutines.launch
  * reference to applications across rotation since Application is never recreated during actiivty
  * or fragment lifecycle events.
  */
+
+enum class MarsApiStatus { LOADING, ERROR, DONE }
+
 class DevByteViewModel(application: Application) : AndroidViewModel(application) {
 
     private val database = getDatabase(application)
     private val videosRepository = VideosRepository(database)
 
+    // The internal MutableLiveData String that stores the status of the most recent request
+    private val _status = MutableLiveData<MarsApiStatus>()
+    val status: LiveData<MarsApiStatus>
+        get() = _status
+
     init {
         viewModelScope.launch {
-            videosRepository.refreshVideos()
+            _status.value = MarsApiStatus.LOADING
+            try {
+                videosRepository.refreshVideos()
+                _status.value = MarsApiStatus.DONE
+            } catch (e: Exception) {
+                _status.value = MarsApiStatus.ERROR
+            }
         }
     }
 

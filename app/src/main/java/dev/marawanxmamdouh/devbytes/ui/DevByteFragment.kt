@@ -12,11 +12,13 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.snackbar.Snackbar
 import dev.marawanxmamdouh.devbytes.R
 import dev.marawanxmamdouh.devbytes.databinding.DevbyteItemBinding
 import dev.marawanxmamdouh.devbytes.databinding.FragmentDevByteBinding
 import dev.marawanxmamdouh.devbytes.domain.Video
 import dev.marawanxmamdouh.devbytes.viewmodels.DevByteViewModel
+import dev.marawanxmamdouh.devbytes.viewmodels.MarsApiStatus
 
 /**
  * Show a list of DevBytes on screen.
@@ -112,6 +114,16 @@ class DevByteFragment : Fragment() {
         binding.root.findViewById<RecyclerView>(R.id.recycler_view).apply {
             layoutManager = LinearLayoutManager(context)
             adapter = viewModelAdapter
+        }
+
+        viewModel.status.observe(viewLifecycleOwner){
+            if (it == MarsApiStatus.ERROR){
+                Snackbar.make(
+                    requireActivity().findViewById(android.R.id.content),
+                    "No Internet Connection",
+                    Snackbar.LENGTH_LONG
+                ).show()
+            }
         }
 
         return binding.root
